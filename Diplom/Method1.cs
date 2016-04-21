@@ -19,7 +19,7 @@ namespace Diplom
 				Cv2.DestroyAllWindows();
 				//Cv2.DestroyWindow("Результат первого метода");
 
-				//Step ё. Получаем исходное изображение
+				//Step 1. Получаем исходное изображение
 				Mat image = new Mat(path, ImreadModes.Unchanged);
 				Mat res = new Mat();
 				Mat result = new Mat();
@@ -62,7 +62,7 @@ namespace Diplom
 		{
 			Point[][] contours;
 			HierarchyIndex[] hierarchyIndexes;
-			Cv2.FindContours(result, out contours, out hierarchyIndexes, RetrievalModes.List, ContourApproximationModes.ApproxNone);
+			Cv2.FindContours(result, out contours, out hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
 
 			RotatedRect[] rectangles = new RotatedRect[contours.Length];
 
@@ -79,7 +79,6 @@ namespace Diplom
 				if (boxLength > 30 && boxLength < 45 && boxWidth > 25 && boxWidth < 40)
 				{
 					centerOfBigRectangle[bigRectangles] = rectangles[i].Center;
-//					Cv2.Circle(image, centerOfBigRectangle[bigRectangles], 10, Scalar.Green, 1);
 					bigRectangles++;
 				}
 
@@ -87,7 +86,6 @@ namespace Diplom
 				if (boxLength > 5 && boxLength < 20 && boxWidth > 5 && boxWidth < 15)
 				{
 					centerOfSmallRectangle[smallRectangles] = rectangles[i].Center;
-//					Cv2.Circle(image, centerOfSmallRectangle[smallRectangles], 5, Scalar.Yellow, 1);
 					smallRectangles++;
 				}
 
@@ -121,10 +119,6 @@ namespace Diplom
 
 						//Определяем углы и рисуем
 						angle = Math.Atan2(xDistance, yDistance);
-
-//						Cv2.Line(image, (int) centerOfBigRectangle[i].X, (int) centerOfBigRectangle[i].Y, (int) centerOfSmallRectangle[j].X, (int) centerOfSmallRectangle[j].Y, Scalar.Red, 2);
-//						Scalar color = Scalar.FromRgb(50 * numOfRobots, 50 * numOfRobots, 50 * numOfRobots);
-//						Cv2.Circle(image, centerOfBigRectangle[bigRectangles], 10, color, 2);
 
 						int thickness = 2;
 						int robotLength = 150;
