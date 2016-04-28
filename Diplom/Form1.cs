@@ -49,7 +49,27 @@ namespace Diplom
 				ResultTextBox.SelectionStart = ResultTextBox.Text.Length;
 				ResultTextBox.ScrollToCaret();
 			}
+		}
+
+		private void Method2_Click(object sender, EventArgs e)
+		{
 
 		}
+	}
+
+	public struct RobodromProperties
+	{
+		public int height;
+		public int length;
+		public int width;
+	}
+
+	public struct NXTProperties
+	{
+		public int length;
+		public int width;
+		public int LCDlength;
+		public int LCDwidth;
+		public int toLCDdistance;
 	}
 }

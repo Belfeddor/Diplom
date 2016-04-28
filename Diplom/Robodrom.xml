@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<RobodromProperties>
+  <!--Высота над рободромом в см-->>
+  <height>300</height>
+  <!--Длина рободромома в см-->>
+  <length>195</length>
+  <!--Ширина рободрома в см-->>
+  <width>195</width>
+</RobodromProperties>

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<NXTProperties>
+  <!--Длина NXT блока (белая зона) в мм-->
+  <length>95</length>
+  <!--Ширина NXT блока (белая) в мм-->
+  <width>72</width>
+  <!--Длина экрана NXT блока в мм-->
+  <LCDlength>44</LCDlength>
+  <!--Ширина экрана NXT блока в мм-->
+  <LCDwidth>30</LCDwidth>
+  <!--Расстояние от лицевой части NXT блока до экрана в мм-->
+  <toLCDdistance>10</toLCDdistance>
+</NXTProperties>
