@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenCvSharp;
 using System.Xml.Serialization;
 using System.IO;
@@ -19,32 +15,29 @@ namespace Diplom
 			{
 				path = value;
 				Cv2.DestroyAllWindows();
-				//Cv2.DestroyWindow("Результат первого метода");
 
 				//Step 1. Получаем исходное изображение
 				Mat image = new Mat(path, ImreadModes.Unchanged);
-				Mat res = new Mat();
 				Mat result = new Mat();
 
 				//Step 2. Преобразуем изображение в оттенки серого
-				Cv2.CvtColor(image, res, ColorConversionCodes.RGB2GRAY);
+				Cv2.CvtColor(image, result, ColorConversionCodes.RGB2GRAY);
 
-				//Step 3. Размываем изображение
-				//				Cv2.MedianBlur(res, result, 5);
-				Cv2.BilateralFilter(res, result, 3, 50, 100);
-				//Cv2.MedianBlur(result, result, 3);
-				//Cv2.GaussianBlur(result, result, new Size(5, 5), 0);
-				//				Cv2.GaussianBlur(result, result, new Size(5, 5), 0);
-				//				Cv2.AddWeighted(result, 1.5, result, -0.5, 0, result);
+				//Шаг 3. Применяем медианный фильтр
+				int ksize = 5;
+				if (image.Width <= 640)
+				{
+					ksize = 3;
+				}
+				Cv2.MedianBlur(result, result, ksize);
 
-				//Step 4. Применяем фильтр Канни
+				//Шаг 4. Применяем фильтр Канни
 				Cv2.Canny(result, result, 75, 200, 3);
-				new Window("Канни", result);
-				//				Cv2.ImWrite("result12.jpg", result);
+
 
 				//Step 5. Ищем прямоугольники
 				FindContours(ref result, ref image, ref resultstring);
-				new Window("Результат первого метода", image);
+				new Window("Результат первого метода", WindowMode.Normal, image);
 			}
 
 			get
@@ -53,17 +46,9 @@ namespace Diplom
 			}
 		}
 
-
 		static void FindContours(ref Mat result, ref Mat image, ref string resultstring)
 		{
-			//Подгружаем размеры площадки из соответствующего xml файла
-			RobodromProperties robodrom = new RobodromProperties();
-			XmlSerializer xmlRobodromSerializer = new XmlSerializer(typeof(RobodromProperties));
-			FileStream xmlRobodrom = new FileStream("Robodrom.xml", FileMode.Open);
-			robodrom = (RobodromProperties) xmlRobodromSerializer.Deserialize(xmlRobodrom);
-			xmlRobodrom.Close();
-
-			//Подгружаем размеры робота из соответствующего xml файла
+			//Подгружаем параметры робота из соответствующего xml файла
 			NXTProperties nxt = new NXTProperties();
 			XmlSerializer xmlNXTSerializer = new XmlSerializer(typeof(NXTProperties));
 			FileStream xmlNXT = new FileStream("NXT.xml", FileMode.Open);
@@ -72,106 +57,104 @@ namespace Diplom
 
 			Point[][] contours;
 			HierarchyIndex[] hierarchyIndexes;
-			Cv2.FindContours(result, out contours, out hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
-
-			RotatedRect[] rectangles = new RotatedRect[contours.Length];
-
-			Point2f[] centerOfBigRectangle = new Point2f[contours.Length];
-			Point2f[] centerOfSmallRectangle = new Point2f[contours.Length];
-			int bigRectangles = 0, smallRectangles = 0;
-			for (int i = 0; i < contours.Length; i++)
-			{
-				rectangles[i] = Cv2.MinAreaRect(contours[i]);
-				int boxLength = (int) Math.Max(rectangles[i].Size.Height, rectangles[i].Size.Width);
-				int boxWidth = (int) Math.Min(rectangles[i].Size.Height, rectangles[i].Size.Width);
-				
-				//Ищем контур NXT блока
-				if (boxLength > 30 && boxLength < 45 && boxWidth > 25 && boxWidth < 40)
-				{
-					centerOfBigRectangle[bigRectangles] = rectangles[i].Center;
-					bigRectangles++;
-				}
-
-				//Ищем контур экрана NXT блока
-				if (boxLength > 5 && boxLength < 20 && boxWidth > 5 && boxWidth < 15)
-				{
-					centerOfSmallRectangle[smallRectangles] = rectangles[i].Center;
-					smallRectangles++;
-				}
-
-			}
-
+			Cv2.FindContours(result, out contours, out hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+			RotatedRect[,] rectangles = new RotatedRect[contours.Length, 2];
+			
+			//Определяем соотношение площадей NXT блока и его экрана
+			float squaresProportion = (nxt.NXTlength * nxt.NXTwidth) / (nxt.LCDlength*nxt.LCDwidth);
 			int numOfRobots = 0;
-			double prevxBigRectangle = 0;
-			double prevyBigRectangle = 0;
 
-			//Определяем правильность и угол
-			for (int i=0; i<bigRectangles; i++)
+			//В данный массив заносим номера вложенного прямоугольника и описывающего его прямоугольника
+			int[,] childsAndParents = new int[contours.Length,2];
+
+			/*Ищем вложенные прямоугольники (родитель родителя необходим, чтобы определить не внешнюю сторону внутреннего прямоугольника, 
+			 *а внутреннюю сторону следующего по иерархии)
+			*/
+			for (int i=0, childnum=0; i < contours.Length; i++)
 			{
-
-
-				for (int j=0; j<smallRectangles; j++)
+				if ((hierarchyIndexes[i].Child == -1) && (hierarchyIndexes[i].Parent != -1))
 				{
-					//Проверяем расстояние между центрами прямоугольников
-					double xDistance = centerOfBigRectangle[i].X - centerOfSmallRectangle[j].X;
-					double yDistance = centerOfBigRectangle[i].Y - centerOfSmallRectangle[j].Y;
-					double distance = Math.Sqrt(Math.Pow(xDistance, 2) + Math.Pow(yDistance, 2));
-					double angle;
-					if ( distance < 10)
+					//Определяем наличие прямоугольника, описанного вокруг вложенного  
+					int parentnum = hierarchyIndexes[hierarchyIndexes[i].Parent].Parent;
+					if ( parentnum != -1)
 					{
-						//Избегаем повторного детектирования
-						if (Math.Abs(prevxBigRectangle - centerOfBigRectangle[i].X) <= 5 && Math.Abs(prevyBigRectangle - centerOfBigRectangle[i].Y) <= 5)
-						{
-							continue;
-						}
-						prevxBigRectangle = centerOfBigRectangle[i].X;
-						prevyBigRectangle = centerOfBigRectangle[i].Y;
-
-						//Определяем углы и рисуем
-						angle = Math.Atan2(xDistance, yDistance);
-
-						int thickness = 2;
-						int robotLength = 150;
-						int robotWeigth = 90;
-						int fromNXTCentertoForward = 95;
-
-						//Определяем угловые точки прямоугольника, описывающего робот
-						Point2f[] corners = new Point2f[4];
-						corners[0].X = (float) (centerOfBigRectangle[i].X - fromNXTCentertoForward * Math.Sin(angle) + robotWeigth * Math.Cos(angle)/2);
-						corners[0].Y = (float) (centerOfBigRectangle[i].Y - fromNXTCentertoForward * Math.Cos(angle) - robotWeigth * Math.Sin(angle)/2);
-						corners[1].X = (float) (corners[0].X - robotWeigth * Math.Cos(angle));
-						corners[1].Y = (float) (corners[0].Y + robotWeigth * Math.Sin(angle));
-						corners[2].X = (float) (corners[1].X + robotLength * Math.Sin(angle));
-						corners[2].Y = (float) (corners[1].Y + robotLength * Math.Cos(angle));
-						corners[3].X = (float) (corners[2].X + robotWeigth * Math.Cos(angle));
-						corners[3].Y = (float) (corners[2].Y - robotWeigth * Math.Sin(angle));
-
-						//Находим центр робота
-						Point2f centerOfRobot;
-						centerOfRobot.X = (float) (centerOfBigRectangle[i].X - (robotLength - fromNXTCentertoForward)/4 * Math.Sin(angle));
-						centerOfRobot.Y = (float) (centerOfBigRectangle[i].Y - (robotLength - fromNXTCentertoForward)/4 * Math.Cos(angle));
-//						Cv2.Circle(image, centerOfRobot, 75, Scalar.Red);
-
-						//Cv2.Circle(image, new Point(10, 10), 5, Scalar.Green);
-						Cv2.Line(image, corners[0], corners[1], Scalar.Red, thickness);
-						Cv2.Line(image, corners[1], corners[2], Scalar.Yellow, thickness);
-						Cv2.Line(image, corners[2], corners[3], Scalar.Green, thickness);
-						Cv2.Line(image, corners[3], corners[0], Scalar.Gold, thickness);
-
-
-
-						//Формируем строку для вывода
-						resultstring += String.Format("Координаты {0}-го робота: ({1:F0}; {2:F0}) \r\nУгол поворота: {3:F2} рад ({4:F0} град)\r\n",
-														numOfRobots+1, centerOfRobot.X, centerOfRobot.Y, angle, angle*180/Math.PI);
-						numOfRobots++;
+						childsAndParents[childnum, 0] = i;
+						childsAndParents[childnum, 1] = parentnum;
+						childnum++;
 					}
 				}
 			}
 
+			//Нашли хотя бы один вложенный
+			for(int i=0; i<childsAndParents.Length; i++)
+			{
+				int childnum = childsAndParents[i, 0];
+				int parentnum = childsAndParents[i, 1];
+
+				if (childnum>0)
+				{
+					rectangles[i, 0] = Cv2.MinAreaRect(contours[childnum]);
+					rectangles[i, 1] = Cv2.MinAreaRect(contours[parentnum]);
+
+					//Определяем коэффициент соотношения между размером робота и его снимком
+					float coef = Math.Max(rectangles[i, 0].Size.Height, rectangles[i, 0].Size.Width) / nxt.LCDlength;
+					
+					//Проверяем соотношение площадей
+					float rectanglesProportion = (rectangles[i, 1].Size.Height * rectangles[i, 1].Size.Width)
+												/ (rectangles[i, 0].Size.Height * rectangles[i, 0].Size.Width);
+										
+					if (rectanglesProportion >= 0.5 * squaresProportion && rectanglesProportion <= 1.5 * squaresProportion)
+					{
+						double xDistance = rectangles[i, 0].Center.X - rectangles[i, 1].Center.X;
+						double yDistance = rectangles[i, 1].Center.Y - rectangles[i, 0].Center.Y;
+						
+						//Определяем расстояние между центрами прямоугольников 
+						double centersDistance = Math.Sqrt(Math.Pow(xDistance, 2) + Math.Pow(yDistance, 2));
+
+						//Проверяем соответствие расстояние между центрами прямоугольника реальным
+						double distance = coef * (nxt.NXTlength / 2 - nxt.fromFrontNXTtoLCD - nxt.LCDwidth / 2);
+						if (centersDistance >= 0.5 * distance && centersDistance <= 1.5 * distance)
+						{
+							//Определяем угол
+							double angle = Math.Atan2(yDistance, xDistance);
+
+							//Определяем центр робота
+							Point2f centerOfRobot;
+							centerOfRobot.X = (float) (rectangles[i, 0].Center.X + (nxt.LCDwidth / 2 + nxt.fromFrontToNXT + nxt.fromFrontNXTtoLCD - nxt.length / 2) * coef * Math.Cos(angle));
+							centerOfRobot.Y = (float) (rectangles[i, 0].Center.Y - (nxt.LCDlength / 2 + nxt.fromLeftToNXT + nxt.fromLeftNXTtoLCD - nxt.width / 2) * coef * Math.Sin(angle));
+							
+							//Определяем угловые точки прямоугольника, описывающего робот
+							Point2f[] corners = new Point2f[4];
+							corners[0].X = (float) (centerOfRobot.X + nxt.length / 2 * coef * Math.Cos(angle) + nxt.width / 2 * coef * Math.Sin(angle));
+							corners[0].Y = (float) (centerOfRobot.Y - nxt.length / 2 * coef * Math.Sin(angle) + nxt.width / 2 * coef * Math.Cos(angle));
+							
+							corners[1].X = (float) (corners[0].X - nxt.length * coef * Math.Cos(angle));
+							corners[1].Y = (float) (corners[0].Y + nxt.length * coef * Math.Sin(angle));
+							corners[2].X = (float) (corners[1].X - nxt.width * coef * Math.Sin(angle));
+							corners[2].Y = (float) (corners[1].Y - nxt.width * coef * Math.Cos(angle));
+							corners[3].X = (float) (corners[2].X + nxt.length * coef * Math.Cos(angle));
+							corners[3].Y = (float) (corners[2].Y - nxt.length * coef * Math.Sin(angle));
+
+							//И рисуем его
+							int thickness = 2;
+							Cv2.Line(image, corners[0], corners[1], Scalar.Red, thickness);
+							Cv2.Line(image, corners[1], corners[2], Scalar.Red, thickness);
+							Cv2.Line(image, corners[2], corners[3], Scalar.Red, thickness);
+							Cv2.Line(image, corners[3], corners[0], Scalar.Red, thickness);
+
+							//Формируем строку для вывода
+							resultstring += String.Format("Координаты {0}-го робота: ({1:F0}; {2:F0}) \r\nУгол поворота: {3:F2} рад ({4:F0} град)\r\n",
+															numOfRobots + 1, rectangles[i, 0].Center.X, rectangles[i, 0].Center.Y, angle, angle * 180 / Math.PI);
+							numOfRobots++;
+						}						
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
 			resultstring += String.Format("Обнаружено роботов:{0}\r\n", numOfRobots);
-
-
-			//resultstring += String.Format("{0}*{1}*{2}", robodrom.height, robodrom.length, robodrom.width);
 		}
 	}
 }

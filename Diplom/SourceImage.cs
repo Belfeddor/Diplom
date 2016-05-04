@@ -11,7 +11,6 @@ namespace Diplom
 			{
 				path = value;
 				Cv2.DestroyAllWindows();
-//				Cv2.DestroyWindow("Исходный кадр");
 				Mat srcImage = new Mat(path);
 				new Window("Исходный кадр", srcImage);
 			}

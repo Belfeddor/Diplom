@@ -1,13 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <NXTProperties>
-  <!--Длина NXT блока (белая зона) в мм-->
-  <length>95</length>
-  <!--Ширина NXT блока (белая) в мм-->
-  <width>72</width>
-  <!--Длина экрана NXT блока в мм-->
+  <!--Длина робота мм (размер А)-->
+  <length>400</length>
+  <!--Ширина робота в мм (размер B)-->
+  <width>260</width>
+  <!--Длина NXT блока (белая зона) в мм (размер C)-->
+  <NXTlength>95</NXTlength>
+  <!--Ширина NXT блока (белая зона) в мм (размер D)-->
+  <NXTwidth>72</NXTwidth>
+  <!--Длина экрана NXT блока в мм (размер E)-->
   <LCDlength>44</LCDlength>
-  <!--Ширина экрана NXT блока в мм-->
+  <!--Ширина экрана NXT блока в мм (размер F)-->
   <LCDwidth>30</LCDwidth>
-  <!--Расстояние от лицевой части NXT блока до экрана в мм-->
-  <toLCDdistance>10</toLCDdistance>
+  <!--Расстояние от лицевой части робота до NXT блока в мм (размер G)-->
+  <fromFrontToNXT>210</fromFrontToNXT>
+  <!--Расстояние от левой части робота до NXT блока в мм (размер H)-->
+  <fromLeftToNXT>94</fromLeftToNXT>
+  <!--Расстояние от передней части NXT блока робота до экрана в мм (размер I)-->
+  <fromFrontNXTtoLCD>13</fromFrontNXTtoLCD>
+  <!--Расстояние от левой части NXT блока робота до экрана в мм (размер J)-->
+  <fromLeftNXTtoLCD>14</fromLeftNXTtoLCD>
 </NXTProperties>

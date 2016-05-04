@@ -1,15 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows.Forms;
-//using System.Collections.Generic;
-//using System.ComponentModel;
-//using System.Data;
-//using System.Drawing;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-
-
 
 namespace Diplom
 {
@@ -24,10 +15,11 @@ namespace Diplom
 		{
 			if (OpenImageDialog.ShowDialog() == DialogResult.OK)
 			{
-				//Show Source Image
+				//Открываем исходное изображение
 				SourceImage src = new SourceImage();
 				src.ImagePath = OpenImageDialog.FileName;
 				Method1.Visible = true;
+				Method2.Visible = true;
 			}
 		}
 
@@ -35,17 +27,20 @@ namespace Diplom
 		{
 			if(OpenImageDialog.FileName != null)
 			{
-				//A timer for determing the duration of the algorithm 
+				//Инициализируем таймер, определяющий время исполнения алгоритма 
 				Stopwatch timer = new Stopwatch();
 				timer.Start();
 
 				Method1 method1 = new Method1();
-				// Execute the first algorithm
+				//Выполняем первый алгоритм
 				method1.ImagePath = OpenImageDialog.FileName;
 
-				//method1.ImagePath = "E:\\Роботы\\6.jpg";
+				//Останавливаем таймер
 				timer.Stop();
-				ResultTextBox.Text += method1.ImagePath + "Время выполнения первого алгоритма: "+ timer.ElapsedMilliseconds + " мс\r\n";
+				//Выводим результат выполнения программы в ResultTextBox на MainForm
+				ResultTextBox.Text = "";
+				//ResultTextBox.Text += method1.ImagePath + "Время выполнения первого алгоритма: 27"+ timer.ElapsedMilliseconds + " мс\r\n";
+				ResultTextBox.Text += method1.ImagePath + "Время выполнения первого алгоритма: " + timer.ElapsedMilliseconds + " мс\r\n";
 				ResultTextBox.SelectionStart = ResultTextBox.Text.Length;
 				ResultTextBox.ScrollToCaret();
 			}
@@ -53,23 +48,40 @@ namespace Diplom
 
 		private void Method2_Click(object sender, EventArgs e)
 		{
+			if (OpenImageDialog.FileName != null)
+			{
+				//Инициализируем таймер, определяющий время исполнения алгоритма 
+				Stopwatch timer = new Stopwatch();
+				timer.Start();
 
+				Method1 method2 = new Method1();
+				//Выполняем второй алгоритм
+				method2.ImagePath = OpenImageDialog.FileName;
+
+				//Останавливаем таймер
+				timer.Stop();
+
+				//Выводим результат выполнения программы в ResultTextBox на MainForm
+				ResultTextBox.Text = "";
+				ResultTextBox.Text += method2.ImagePath + "Время выполнения первого алгоритма: " + timer.ElapsedMilliseconds + " мс\r\n";
+				ResultTextBox.SelectionStart = ResultTextBox.Text.Length;
+				ResultTextBox.ScrollToCaret();
+			}
 		}
 	}
 
-	public struct RobodromProperties
-	{
-		public int height;
-		public int length;
-		public int width;
-	}
-
+	//Используем для подгрузки параметров робота из xml-файла 
 	public struct NXTProperties
 	{
 		public int length;
 		public int width;
+		public int NXTlength;
+		public int NXTwidth;
 		public int LCDlength;
 		public int LCDwidth;
-		public int toLCDdistance;
+		public int fromFrontToNXT;
+		public int fromLeftToNXT;
+		public int fromFrontNXTtoLCD;
+		public int fromLeftNXTtoLCD;
 	}
 }

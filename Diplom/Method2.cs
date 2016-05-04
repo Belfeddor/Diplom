@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenCvSharp;
 using System.Xml.Serialization;
 using System.IO;
@@ -23,28 +19,51 @@ namespace Diplom
 
 				//Step 1. Получаем исходное изображение
 				Mat image = new Mat(path, ImreadModes.Unchanged);
-				Mat res = new Mat();
+//				Mat res = new Mat();
 				Mat result = new Mat();
 
 				//Step 2. Преобразуем изображение в оттенки серого
-				Cv2.CvtColor(image, res, ColorConversionCodes.RGB2GRAY);
-
-				//Step 3. Размываем изображение
-				//				Cv2.MedianBlur(res, result, 5);
-				Cv2.BilateralFilter(res, result, 3, 50, 100);
-				//Cv2.MedianBlur(result, result, 3);
-				//Cv2.GaussianBlur(result, result, new Size(5, 5), 0);
-				//				Cv2.GaussianBlur(result, result, new Size(5, 5), 0);
-				//				Cv2.AddWeighted(result, 1.5, result, -0.5, 0, result);
-
-				//Step 4. Применяем фильтр Канни
+				Cv2.CvtColor(image, result, ColorConversionCodes.RGB2GRAY);
+				Cv2.MedianBlur(result, result, 5);
 				Cv2.Canny(result, result, 75, 200, 3);
-				new Window("Канни", result);
-				//				Cv2.ImWrite("result12.jpg", result);
+				LineSegmentPoint[] lines;
+				lines = Cv2.HoughLinesP(result, 1, Cv2.PI / 180, 50, 50, 10);
+				//for(int i=0; i<lines.Length; i++)
+				//{
+				//	Vec4i v = lines[i];
+				//	float rho = lines[i].Rho;
+				//	float theta = lines[i].Theta;
+				//	double a = Math.Cos(theta);
+				//	double b = Math.Sin(theta);
+				//	double x0 = a * rho;
+				//	double y0 = b * rho;
+				//	Point pt1 = new Point { X = (int)Math.Round(x0 + 1000 * (-b)), Y = (int)Math.Round(y0 + 1000 * (a)) };
+				//	Point pt2 = new Point { X = (int)Math.Round(x0 - 1000 * (-b)), Y = (int)Math.Round(y0 - 1000 * (a)) };
+				//	image.Line(pt1, pt2, Scalar.Red, 3, LineTypes.AntiAlias, 0);
+				//}
+				new Window("Hough_line_standard", WindowMode.AutoSize, image);
 
-				//Step 5. Ищем прямоугольники
-				FindContours(ref result, ref image, ref resultstring);
-				new Window("Результат первого метода", image);
+
+
+
+
+
+				////Step 3. Размываем изображение
+				////				Cv2.MedianBlur(res, result, 5);
+				//Cv2.BilateralFilter(res, result, 3, 50, 100);
+				////Cv2.MedianBlur(result, result, 3);
+				////Cv2.GaussianBlur(result, result, new Size(5, 5), 0);
+				////				Cv2.GaussianBlur(result, result, new Size(5, 5), 0);
+				////				Cv2.AddWeighted(result, 1.5, result, -0.5, 0, result);
+
+				////Step 4. Применяем фильтр Канни
+				//Cv2.Canny(result, result, 75, 200, 3);
+				//new Window("Канни", result);
+				////				Cv2.ImWrite("result12.jpg", result);
+
+				////Step 5. Ищем прямоугольники
+				//FindContours(ref result, ref image, ref resultstring);
+				//new Window("Результат первого метода", image);
 			}
 
 			get
@@ -56,13 +75,6 @@ namespace Diplom
 
 		static void FindContours(ref Mat result, ref Mat image, ref string resultstring)
 		{
-			//Подгружаем размеры площадки из соответствующего xml файла
-			RobodromProperties robodrom = new RobodromProperties();
-			XmlSerializer xmlRobodromSerializer = new XmlSerializer(typeof(RobodromProperties));
-			FileStream xmlRobodrom = new FileStream("Robodrom.xml", FileMode.Open);
-			robodrom = (RobodromProperties)xmlRobodromSerializer.Deserialize(xmlRobodrom);
-			xmlRobodrom.Close();
-
 			//Подгружаем размеры робота из соответствующего xml файла
 			NXTProperties nxt = new NXTProperties();
 			XmlSerializer xmlNXTSerializer = new XmlSerializer(typeof(NXTProperties));
