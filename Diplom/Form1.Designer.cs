@@ -30,9 +30,9 @@
 		{
 			this.OpenImage = new System.Windows.Forms.Button();
 			this.OpenImageDialog = new System.Windows.Forms.OpenFileDialog();
-			this.Method1 = new System.Windows.Forms.Button();
+			this.MethodCanny = new System.Windows.Forms.Button();
 			this.ResultTextBox = new System.Windows.Forms.TextBox();
-			this.Method2 = new System.Windows.Forms.Button();
+			this.OpenModelDialog = new System.Windows.Forms.OpenFileDialog();
 			this.SuspendLayout();
 			// 
 			// OpenImage
@@ -49,21 +49,21 @@
 			// 
 			this.OpenImageDialog.FileName = "Выберите кадр";
 			// 
-			// Method1
+			// MethodCanny
 			// 
-			this.Method1.Location = new System.Drawing.Point(100, 100);
-			this.Method1.Name = "Method1";
-			this.Method1.Size = new System.Drawing.Size(100, 50);
-			this.Method1.TabIndex = 1;
-			this.Method1.Text = "Первый метод";
-			this.Method1.UseVisualStyleBackColor = true;
-			this.Method1.Visible = false;
-			this.Method1.Click += new System.EventHandler(this.Method1_Click);
+			this.MethodCanny.Location = new System.Drawing.Point(100, 100);
+			this.MethodCanny.Name = "MethodCanny";
+			this.MethodCanny.Size = new System.Drawing.Size(100, 50);
+			this.MethodCanny.TabIndex = 1;
+			this.MethodCanny.Text = "Метод Кэнни";
+			this.MethodCanny.UseVisualStyleBackColor = true;
+			this.MethodCanny.Visible = false;
+			this.MethodCanny.Click += new System.EventHandler(this.MethodCanny_Click);
 			// 
 			// ResultTextBox
 			// 
 			this.ResultTextBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.ResultTextBox.Location = new System.Drawing.Point(0, 261);
+			this.ResultTextBox.Location = new System.Drawing.Point(0, 211);
 			this.ResultTextBox.Multiline = true;
 			this.ResultTextBox.Name = "ResultTextBox";
 			this.ResultTextBox.ReadOnly = true;
@@ -71,25 +71,17 @@
 			this.ResultTextBox.Size = new System.Drawing.Size(284, 150);
 			this.ResultTextBox.TabIndex = 2;
 			// 
-			// Method2
+			// OpenModelDialog
 			// 
-			this.Method2.Location = new System.Drawing.Point(100, 175);
-			this.Method2.Name = "Method2";
-			this.Method2.Size = new System.Drawing.Size(100, 50);
-			this.Method2.TabIndex = 3;
-			this.Method2.Text = "Второй метод";
-			this.Method2.UseVisualStyleBackColor = true;
-			this.Method2.Visible = false;
-			this.Method2.Click += new System.EventHandler(this.Method2_Click);
+			this.OpenModelDialog.FileName = "Выберите модель NXT блока";
 			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(284, 411);
-			this.Controls.Add(this.Method2);
+			this.ClientSize = new System.Drawing.Size(284, 361);
 			this.Controls.Add(this.ResultTextBox);
-			this.Controls.Add(this.Method1);
+			this.Controls.Add(this.MethodCanny);
 			this.Controls.Add(this.OpenImage);
 			this.Icon = global::Diplom.Properties.Resources.icon;
 			this.Name = "MainForm";
@@ -104,9 +96,9 @@
 
 		private System.Windows.Forms.Button OpenImage;
 		private System.Windows.Forms.OpenFileDialog OpenImageDialog;
-		private System.Windows.Forms.Button Method1;
+		private System.Windows.Forms.Button MethodCanny;
 		private System.Windows.Forms.TextBox ResultTextBox;
-		private System.Windows.Forms.Button Method2;
+		private System.Windows.Forms.OpenFileDialog OpenModelDialog;
 	}
 }
 

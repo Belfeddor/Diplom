@@ -18,12 +18,11 @@ namespace Diplom
 				//Открываем исходное изображение
 				SourceImage src = new SourceImage();
 				src.ImagePath = OpenImageDialog.FileName;
-				Method1.Visible = true;
-				Method2.Visible = true;
+				MethodCanny.Visible = true;
 			}
 		}
 
-		private void Method1_Click(object sender, EventArgs e)
+		private void MethodCanny_Click(object sender, EventArgs e)
 		{
 			if(OpenImageDialog.FileName != null)
 			{
@@ -31,39 +30,15 @@ namespace Diplom
 				Stopwatch timer = new Stopwatch();
 				timer.Start();
 
-				Method1 method1 = new Method1();
+				MethodCanny methodCanny = new MethodCanny();
 				//Выполняем первый алгоритм
-				method1.ImagePath = OpenImageDialog.FileName;
+				methodCanny.ImagePath = OpenImageDialog.FileName;
 
 				//Останавливаем таймер
 				timer.Stop();
 				//Выводим результат выполнения программы в ResultTextBox на MainForm
 				ResultTextBox.Text = "";
-				//ResultTextBox.Text += method1.ImagePath + "Время выполнения первого алгоритма: 27"+ timer.ElapsedMilliseconds + " мс\r\n";
-				ResultTextBox.Text += method1.ImagePath + "Время выполнения первого алгоритма: " + timer.ElapsedMilliseconds + " мс\r\n";
-				ResultTextBox.SelectionStart = ResultTextBox.Text.Length;
-				ResultTextBox.ScrollToCaret();
-			}
-		}
-
-		private void Method2_Click(object sender, EventArgs e)
-		{
-			if (OpenImageDialog.FileName != null)
-			{
-				//Инициализируем таймер, определяющий время исполнения алгоритма 
-				Stopwatch timer = new Stopwatch();
-				timer.Start();
-
-				Method1 method2 = new Method1();
-				//Выполняем второй алгоритм
-				method2.ImagePath = OpenImageDialog.FileName;
-
-				//Останавливаем таймер
-				timer.Stop();
-
-				//Выводим результат выполнения программы в ResultTextBox на MainForm
-				ResultTextBox.Text = "";
-				ResultTextBox.Text += method2.ImagePath + "Время выполнения первого алгоритма: " + timer.ElapsedMilliseconds + " мс\r\n";
+				ResultTextBox.Text += method1.ImagePath + "Время выполнения алгоритма: " + timer.ElapsedMilliseconds + " мс\r\n";
 				ResultTextBox.SelectionStart = ResultTextBox.Text.Length;
 				ResultTextBox.ScrollToCaret();
 			}

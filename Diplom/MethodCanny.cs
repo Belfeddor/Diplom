@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Diplom
 {
-	class Method1
+	class MethodCanny
 	{
 		string path;
 		string resultstring="";
@@ -33,11 +33,12 @@ namespace Diplom
 
 				//Шаг 4. Применяем фильтр Канни
 				Cv2.Canny(result, result, 75, 200, 3);
+				Cv2.ImWrite("canny.jpg", result);
 
 
 				//Step 5. Ищем прямоугольники
 				FindContours(ref result, ref image, ref resultstring);
-				new Window("Результат первого метода", WindowMode.Normal, image);
+				new Window("Результат метода", WindowMode.Normal, image);
 			}
 
 			get
