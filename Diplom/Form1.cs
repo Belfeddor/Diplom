@@ -38,7 +38,7 @@ namespace Diplom
 				timer.Stop();
 				//Выводим результат выполнения программы в ResultTextBox на MainForm
 				ResultTextBox.Text = "";
-				ResultTextBox.Text += method1.ImagePath + "Время выполнения алгоритма: " + timer.ElapsedMilliseconds + " мс\r\n";
+				ResultTextBox.Text += methodCanny.ImagePath + "Время выполнения алгоритма: " + timer.ElapsedMilliseconds + " мс\r\n";
 				ResultTextBox.SelectionStart = ResultTextBox.Text.Length;
 				ResultTextBox.ScrollToCaret();
 			}
